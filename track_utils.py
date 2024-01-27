@@ -2,11 +2,15 @@ from amulet_utils import *
 from amulet import load_level
 from amulet.api.block import Block
 from amulet_nbt import StringTag
+import math
 
-def generate_segment(source_world_path, target_world_path, entry_x, exit_x, portal_centre_y, render_distance, source_location, above_height, below_height, null_zone_width):
+
+def generate_segment(source_world_path, target_world_path, entry_x, exit_x, portal_centre_y, render_distance, source_location, above_height, below_height, null_zone_width, do_entry=True, do_exit=True):
   # entry x is where the entry portal is
   # behind it will be terrain, stretching half the render distance (since we have to obscure half with fog anyway)
   # the same applies to the exit
+
+  length = exit_x - entry_x
 
   # load the level
   print("Opening source world...")
@@ -19,17 +23,18 @@ def generate_segment(source_world_path, target_world_path, entry_x, exit_x, port
 
   for c in copy(
     (
-      source_location[0] - render_distance * 8,
+      source_location[0] - (render_distance * 8 if do_entry else 0),
       source_location[1] + above_height,
-      source_location[2] - render_distance * 8# in transition zones the segment can only be half as wide since we need two side by side
+      source_location[2] - render_distance * (8 if do_entry else 16)# in transition zones the segment can only be half as wide since we need two side by side
     ),
     (
       source_location[0] + render_distance * 8,
       source_location[1] - below_height,
-      source_location[2] + render_distance * 8
+      source_location[2] + render_distance * (8 if do_entry else 16)
     ),
     source_world
-  ): print(f"Copying entry transition zone: {c * 100}%")
+  ): print(f"Copying entry transition zone: {round(c * 100)}%", end="\r")
+  print()
 
   for c in copy(
     (
@@ -38,26 +43,28 @@ def generate_segment(source_world_path, target_world_path, entry_x, exit_x, port
       source_location[2] + render_distance * 16
     ),
     (
-      source_location[0] + (exit_x - entry_x) - render_distance * 8,
+      source_location[0] + length - render_distance * 8,
       source_location[1] - below_height,
-      source_location[2] - render_distance * 16 # in transition zones the segment can only be half as wide since we need two side by side
+      source_location[2] - render_distance * 16
     ),
     source_world
-  ): print(f"Copying rail segment: {c * 100}%")
+  ): print(f"Copying rail segment: {round(c * 100)}%", end="\r")
+  print()
 
   for c in copy(
     (
-      source_location[0] + (exit_x - entry_x) + render_distance * 8,
+      source_location[0] + length + (render_distance * 8 if do_exit else 0),
       source_location[1] + above_height,
-      source_location[2] - render_distance * 8 # in transition zones the segment can only be half as wide since we need two side by side
+      source_location[2] - render_distance * (8 if do_exit else 16) # in transition zones the segment can only be half as wide since we need two side by side
     ),
     (
-      source_location[0] + (exit_x - entry_x) - render_distance * 8,
+      source_location[0] + length - render_distance * 8,
       source_location[1] - below_height,
-      source_location[2] + render_distance * 8
+      source_location[2] + render_distance * (8 if do_exit else 16)
     ),
     source_world
-  ): print(f"Copying exit transition zone: {c * 100}%")
+  ): print(f"Copying exit transition zone: {round(c * 100)}%", end="\r")
+  print()
 
   print("Closing source world...")
   source_world.close()
@@ -77,12 +84,13 @@ def generate_segment(source_world_path, target_world_path, entry_x, exit_x, port
 
   for v in paste(
     (
-      exit_x,
+      exit_x - (0 if do_exit else render_distance * 4),
       portal_centre_y - offset_y,
-      -(null_zone_width / 2) - (render_distance * 8)
+    (-(null_zone_width / 2) - (render_distance * 8)) if do_exit else 0 
     ),
     target_world
-  ): print(f"Pasting exit transition zone: {v * 100}%")
+  ): print(f"Pasting exit transition zone: {round(v * 100)}%", end="\r")
+  print()
 
   for v in paste(
     (
@@ -91,79 +99,101 @@ def generate_segment(source_world_path, target_world_path, entry_x, exit_x, port
       0
     ),
     target_world
-  ): print(f"Pasting rail segment: {v * 100}%")
+  ): print(f"Pasting rail segment: {round(v * 100)}%", end="\r")
+  print()
 
   # manual offset for entry segment on z because it's fucking weird
   for v in paste(
     (
-      entry_x,
+      entry_x + (0 if do_entry else render_distance * 4),
       portal_centre_y - offset_y,
-      (null_zone_width / 2) + (render_distance * 8) + 2
+      ((null_zone_width / 2) + (render_distance * 8) + 2) if do_entry else 0
     ),
     target_world
-  ): print(f"Pasting entry transition zone: {v * 100}%")
-
-  # place rails again along centre
-  for r in place_rail((entry_x - (render_distance * 8) , portal_centre_y, 0), exit_x - entry_x, target_world): print(f"Placing rails: {r}%")
+  ): print(f"Pasting entry transition zone: {round(v * 100)}%", end="\r")
+  print()
 
   # place rails in entry transition zone
-  for r in place_rail((entry_x, portal_centre_y, (null_zone_width / 2) + (render_distance * 8)), render_distance * 8, target_world): print(f"Placing rails: {r}%")
+  for r in place_rail((
+    entry_x,
+    portal_centre_y,
+    (math.ceil(null_zone_width / 2) + (render_distance * 8)) if do_entry else 0
+  ), render_distance * 8, target_world): print(f"Placing entry rails: {round(r * 100)}%", end="\r")
+  print()
+  
+   # place rails along centre
+  for r in place_rail((
+    entry_x - (render_distance *  8), 
+    portal_centre_y,
+    0
+  ), length + (render_distance * 16), target_world
+  ): print(f"Placing main rails: {round(r * 100)}%", end="\r")
+  print()
 
-  # place rails in exit transition zone
-  for r in place_rail((exit_x - render_distance * 8, portal_centre_y, -(null_zone_width / 2) - (render_distance * 8)), render_distance * 8, target_world): print(f"Placing rails: {r}%")
+  for r in place_rail((
+    exit_x - (render_distance * 8),
+    portal_centre_y,
+    (-math.floor(null_zone_width / 2) - (render_distance * 8)) if exit else 0
+  ), render_distance * 8, target_world): print(f"Placing exit rails: {round(r * 100)}%", end="\r")
+  print()
 
-  for c, t in target_world.save_iter(): print(f"Saving target world: {(c / t) * 100}%")
+  for c, t in target_world.save_iter(): print(f"Saving target world: {round((c / t) * 100)}%", end="\r")
+  print()
   target_world.close()
 
 def place_rail(start, length, world):
-  yield from fill(
-    (
-      start[0],
-      start[1] - 2,
-      start[2]
-    ),
-    (
-      start[0] + length,
-      start[1] - 1,
-      start[2] + 1
-    ),
-    Block("minecraft", "redstone_block"),
-    world
-  )
+  print(f"Placing rails between {start[0]} and {start[0] + length} at z {start[2]} and y {start[1]}")
+  try:
+    yield from fill(
+      (
+        start[0],
+        start[1] - 2,
+        start[2]
+      ),
+      (
+        start[0] + length,
+        start[1] - 1,
+        start[2] + 1
+      ),
+      Block("minecraft", "redstone_block"),
+      world
+    )
 
-  yield from fill(
-    (
-      start[0],
-      start[1] - 1,
-      start[2]
-    ),
-    (
-      start[0] + length,
-      start[1],
-      start[2] + 1
-    ),
-    Block(
-      "minecraft",
-      "powered_rail",
-      {
-          "powered": StringTag("true"),
-          "shape": StringTag("east_west")
-      }
-    ),
-    world
-  )
+    yield from fill(
+      (
+        start[0],
+        start[1] - 1,
+        start[2]
+      ),
+      (
+        start[0] + length,
+        start[1],
+        start[2] + 1
+      ),
+      Block(
+        "minecraft",
+        "powered_rail",
+        {
+            "powered": StringTag("true"),
+            "shape": StringTag("east_west")
+        }
+      ),
+      world
+    )
 
-  yield from fill(
-    (
-      start[0],
-      start[1],
-      start[2]
-    ),
-    (
-      start[0] + length,
-      start[1] + 1,
-      start[2] + 1
-    ),
-    Block("minecraft", "air"),
-    world
-  )
+    yield from fill(
+      (
+        start[0],
+        start[1],
+        start[2]
+      ),
+      (
+        start[0] + length,
+        start[1] + 1,
+        start[2] + 1
+      ),
+      Block("minecraft", "air"),
+      world
+    )
+  except Exception as e:
+        print(f"Error during fill: {e}")
