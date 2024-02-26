@@ -5,6 +5,11 @@ from amulet_nbt import StringTag
 import math
 
 
+def check_save_exists(path):
+  world = amulet.load_level(path)
+  print(f"World {path} exists")
+  world.close()
+
 def generate_segment(source_world_path, target_world_path, entry_x, exit_x, portal_centre_y, render_distance, source_location, above_height, below_height, null_zone_width, do_entry=True, do_exit=True):
   # entry x is where the entry portal is
   # behind it will be terrain, stretching half the render distance (since we have to obscure half with fog anyway)
@@ -102,12 +107,11 @@ def generate_segment(source_world_path, target_world_path, entry_x, exit_x, port
   ): print(f"Pasting rail segment: {round(v * 100)}%", end="\r")
   print()
 
-  # manual offset for entry segment on z because it's fucking weird
   for v in paste(
     (
       entry_x + (0 if do_entry else render_distance * 4),
       portal_centre_y - offset_y,
-      ((null_zone_width / 2) + (render_distance * 8) + 2) if do_entry else 0
+      ((null_zone_width / 2) + (render_distance * 8) + 1) if do_entry else 0 # offset by one for some reason
     ),
     target_world
   ): print(f"Pasting entry transition zone: {round(v * 100)}%", end="\r")
