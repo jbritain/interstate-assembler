@@ -1,0 +1,2 @@
+This is a Python script and web app for generating the terrain used in my [Minecraft Acid Interstate](https://github.com/jbritain/minecraft-acid-interstate/) videos. Use `interstate_v5.py` as an example if you want to see how to use it.
+Torchmap json files can be generated with the html file in the `torchmapper` folder, just open it locally, or visit [https://projects.jbritain.net/interstate-assembler/torchmapper.html](https://projects.jbritain.net/interstate-assembler/torchmapper.html) (it may not work properly online).
