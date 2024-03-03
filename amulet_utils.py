@@ -64,3 +64,13 @@ def paste(location, world):
   # note that the paste function pastes relative to the centre
   structure, structure_dimension = amulet.api.structure.structure_cache.pop_structure()
   yield from world.paste_iter(structure, structure_dimension, structure.bounds(structure_dimension), dimension, location, include_entities=False)
+
+def set_block(location, block, world):
+  world.set_version_block(
+    location[0],
+    location[1],
+    location[2],
+    "minecraft:overworld",
+    ("java", (1, 20, 2)),
+    block
+  )

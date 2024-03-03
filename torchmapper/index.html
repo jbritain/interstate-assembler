@@ -33,21 +33,23 @@
     <br>
 
     <input style="width: unset" id="levelGround" type="radio" name="level" value="1">
-    <label for="levelGround">Ground</label>
+    <label for="levelGround"><span style="color: red">⬤</span> Ground</label>
     <br>
 
     <input checked style="width: unset" id="levelCentre" type="radio" name="level" value="2">
-    <label for="levelCentre">Centre</label>
+    <label for="levelCentre"><span style="color: yellow">⬤</span> Centre</label>
     <br>
 
     <input style="width: unset" id="levelTop" type="radio" name="level" value="3">
-    <label for="levelTop">Top</label>
+    <label for="levelTop"><span style="color: blue">⬤</span> Top</label>
 
-    <p>Press the left and right arrow keys to add beats on the corresponding side. Press the up arrow to add on both sides.</p>
-
+    <p>Press the left and right arrow keys to add beats on the corresponding side. Press the up arrow to add on both sides.<br><small>Pressing 'Fix Gaps' will cause the undo button to remove the last beat instead, as it sorts the beats by X position.</small></p>
     <button onclick="playPause()" id="playPause">⏵</button>
+    <button onclick="undo()">⎌</button>
     <button onclick="beats = []">Clear</button>
     <button onclick="exportFile()">Export</button>
+    <button onclick="importJson()">Import</button>
+    <button onclick="fixGaps()">Fix Gaps</button>
     <hr>
     <canvas style="width: 100%; aspect-ratio: 4/1; border: 1px solid var(--primary);" id="canvas">
 

@@ -3,6 +3,7 @@ from amulet import load_level
 from amulet.api.block import Block
 from amulet_nbt import StringTag
 import math
+import json
 
 
 def check_save_exists(path):
@@ -201,3 +202,49 @@ def place_rail(start, length, world):
     )
   except Exception as e:
         print(f"Error during fill: {e}")
+
+def place_torches(torchmap, portals, portal_centre, render_distance, world_path, null_zone_width):
+  world = amulet.load_level(world_path)
+  torches = json.loads(torchmap)
+  print("Placing torches...")
+  for torch in torches:
+    modified_portal_centre_z = portal_centre[1]
+    for portal in portals:
+      if abs(portal - torch["x"]) < render_distance * 8:
+        if (torch["x"]) < portal:
+          modified_portal_centre_z -= math.floor(null_zone_width / 2) + render_distance * 8
+        else:
+          modified_portal_centre_z += math.ceil(null_zone_width / 2) + render_distance * 8
+
+    place_torch(torch, (portal_centre[0], modified_portal_centre_z), world)
+  world.save()
+  world.close()
+
+def place_torch(torch, portal_centre, world):
+  x = torch["x"]
+  height = torch["height"]
+  side = torch["side"]
+
+  if height == "1":
+    if side == "l" or side == "b":
+      set_block((x, portal_centre[0] - 2, portal_centre[1] - 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0] - 1, portal_centre[1] - 1), Block("minecraft", "torch"), world)
+    if side == "r" or side == "b":
+      set_block((x, portal_centre[0] - 2, portal_centre[1] + 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0] - 1, portal_centre[1] + 1), Block("minecraft", "torch"), world)
+  elif height == "2":
+    if side == "l" or side == "b":
+      set_block((x, portal_centre[0] - 1, portal_centre[1] - 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0] - 2, portal_centre[1] - 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0], portal_centre[1] - 1), Block("minecraft", "torch"), world)
+    if side == "r" or side == "b":
+      set_block((x, portal_centre[0] - 1, portal_centre[1] + 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0] - 2, portal_centre[1] + 1), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0], portal_centre[1] + 1), Block("minecraft", "torch"), world)
+  else:
+    if side == "l" or side == "b":
+      set_block((x, portal_centre[0], portal_centre[1] - 2), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0], portal_centre[1] - 1), Block("minecraft", "wall_torch", {"facing": StringTag("south")}), world)
+    if side == "r" or side == "b":
+      set_block((x, portal_centre[0], portal_centre[1] + 2), Block("minecraft", "cobblestone"), world)
+      set_block((x, portal_centre[0], portal_centre[1] + 1), Block("minecraft", "wall_torch", {"facing": StringTag("north")}), world)

@@ -1,3 +1,6 @@
+let canvas;
+let gapThreshold = 4;
+
 function updateAudioSource(){
   file = document.getElementById("audioUpload").files[0];
   if(!file){
@@ -37,18 +40,31 @@ let ctx;
 function init(){
   updateAudioSource();
   updateSpeed();
-  ctx = document.getElementById("canvas").getContext("2d");
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  fixDpi();
   renderCanvas();
 }
 
+// https://medium.com/wdstack/fixing-html5-2d-canvas-blur-8ebe27db07da
+function fixDpi() {
+  const dpr = window.devicePixelRatio;
+  const rect =  canvas.getBoundingClientRect();
+  ctx.scale(dpr, dpr);
+  canvas.style.width = `${rect.width}px`;
+  canvas.style.height = `${rect.height}px`;
+  canvas.width = `${rect.width}`;
+  canvas.height = `${rect.width}`;
+}
 
 let bps = 64; // 64 pixels per second (1 block per pixel)
 function renderCanvas(){
   if(!ctx){
     return;
   }
-  const height = document.getElementById("canvas").height;
-  const width = document.getElementById("canvas").width;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const height = canvas.height;
+  const width = canvas.width;
 
   ctx.clearRect(0, 0, width, height); // clear canvas
 
@@ -70,6 +86,7 @@ function renderCanvas(){
 
   // draw beats
   ctx.fillStyle = "#ff33e0";
+  ctx.globalAlpha = 1.0;
 
   beats.forEach(b => {
     let startHeight = 0;
@@ -86,7 +103,17 @@ function renderCanvas(){
         break;
     }
 
-    ctx.globalAlpha = b.height / 3;
+    switch(b.height){
+      case "1":
+        ctx.fillStyle = "red";
+        break;
+      case "2":
+        ctx.fillStyle = "yellow";
+        break;
+      case "3":
+        ctx.fillStyle = "blue";
+        break;
+    }
 
     ctx.fillRect(b.time * bps - offset + width / 4, startHeight, 1, endHeight - startHeight);
   });
@@ -105,10 +132,8 @@ function renderCanvas(){
 }
 
 function renderLoop(){
-  setTimeout(() => {
-    renderCanvas();
-    renderLoop();
-  }, 10);
+  requestAnimationFrame(renderLoop);
+  renderCanvas();
 }
 
 renderLoop();
@@ -160,4 +185,29 @@ function download(filename, text) {
   element.click();
 
   document.body.removeChild(element);
+}
+
+function importJson(){
+  try {
+    beats = beats.concat(JSON.parse(window.prompt("Paste JSON String")));
+  } catch(e) {
+    window.Error("Invalid json!");
+  }
+  
+}
+
+function fixGaps(){
+  beats.sort((a,b) => a.x - b.x);
+  let lastBeat = beats[0];
+  beats.forEach(beat => {
+    if(Math.abs(lastBeat.x - beat.x) <= gapThreshold){
+      beat.x = lastBeat.x;
+      beat.time = lastBeat.time;
+    }
+    lastBeat = beat;
+  })
+}
+
+function undo(){
+  beats.pop();
 }
