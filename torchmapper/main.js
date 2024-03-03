@@ -142,17 +142,46 @@ let beats = [];
 
 document.addEventListener("keydown", (e) => {
   let side = "";
-  switch(e.key){
-    case "ArrowLeft":
+  let height = "";
+  switch(e.code){
+    case "Numpad7":
       side = "l";
+      height = "3";
       break;
-    case "ArrowRight":
-      side = "r";
-      break;
-    case "ArrowUp":
+    case "Numpad8":
       side = "b";
+      height = "3";
+      break;
+    case "Numpad9":
+      side = "r";
+      height = "3";
+      break;
+    case "Numpad4":
+      side = "l";
+      height = "2";
+      break;
+    case "Numpad5":
+      side = "b";
+      height = "2";
+      break;
+    case "Numpad6":
+      side = "r";
+      height = "2";
+      break;
+    case "Numpad1":
+      side = "l";
+      height = "1";
+      break;
+    case "Numpad2":
+      side = "b";
+      height = "1";
+      break;
+    case "Numpad3":
+      side = "r";
+      height = "1";
       break;
     default:
+      console.log(e.code)
       return;
   }
 
@@ -164,7 +193,7 @@ document.addEventListener("keydown", (e) => {
   beats.push({
     "time": time,
     "x": x,
-    "height": document.querySelector('input[name="level"]:checked').value,
+    "height": height,
     "side": side
   })
 })

@@ -29,21 +29,16 @@
 
     <br><br>
 
-    <b>Level</b>
+    <b>Level Key</b>
     <br>
+    <ul style="list-style: none;">
+      <li><span style="color: blue">⬤</span> Top</li>
+      <li><span style="color: yellow">⬤</span> Centre</li>
+      <li><span style="color: red">⬤</span> Ground</li>
+    </ul>
 
-    <input style="width: unset" id="levelGround" type="radio" name="level" value="1">
-    <label for="levelGround"><span style="color: red">⬤</span> Ground</label>
-    <br>
-
-    <input checked style="width: unset" id="levelCentre" type="radio" name="level" value="2">
-    <label for="levelCentre"><span style="color: yellow">⬤</span> Centre</label>
-    <br>
-
-    <input style="width: unset" id="levelTop" type="radio" name="level" value="3">
-    <label for="levelTop"><span style="color: blue">⬤</span> Top</label>
-
-    <p>Press the left and right arrow keys to add beats on the corresponding side. Press the up arrow to add on both sides.<br><small>Pressing 'Fix Gaps' will cause the undo button to remove the last beat instead, as it sorts the beats by X position.</small></p>
+    <p>Press the numpad keys to add beats. Numpad 7 will place on the top left, 8 on both sides on the top, and 9 on the top right, etc.<br>
+    <small>Pressing 'Fix Gaps' will cause unexpected behaviour if you attempt to undo any beats placed before this point.</small></p>
     <button onclick="playPause()" id="playPause">⏵</button>
     <button onclick="undo()">⎌</button>
     <button onclick="beats = []">Clear</button>
