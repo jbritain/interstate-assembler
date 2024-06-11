@@ -1,10 +1,148 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="https://jbritain.net/stylesheet.css">
     <title>Acid Interstate Torchmap Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   </head>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap');
+
+    :root {
+      --text: #ffffff;
+      --background: #04040b;
+      --secondary-background: rgb(255, 255, 255, 0.05);
+      --primary: #42f548;
+      --secondary: #030026;
+      --accent: #ff33e0;
+      --heading-font: 'IBM Plex Mono';
+      --body-font: 'IBM Plex Mono'
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--body-font);
+      font-weight: 400;
+      background-color: var(--background);
+      color: var(--text);
+      margin: 0px;
+      margin: 32px;
+    }
+    
+    body h1:first-child {
+      margin-top: 0px;
+    }
+    
+    h1, h2, h3, h4, h5 {
+      font-family: var(--heading-font);
+      font-weight: 700;
+    }
+    
+    html {font-size: 100%;} /* 16px */
+    
+    h1 {font-size: 4.210rem; /* 67.36px */}
+    
+    h2 {font-size: 3.158rem; /* 50.56px */}
+    
+    h3 {font-size: 2.369rem; /* 37.92px */}
+    
+    h4 {font-size: 1.777rem; /* 28.48px */}
+    
+    h5 {font-size: 1.333rem; /* 21.28px */}
+    
+    small {font-size: 0.750rem; /* 12px */}
+    
+    main, article {
+      margin: 32px;
+      padding: 32px;
+      background-color: var(--secondary-background);
+      border-radius: 4px;
+    }
+    
+    a:link {
+      color: var(--primary);
+    }
+    
+    a:visited {
+      color: var(--accent);
+    }
+    
+    a:link, a:visited {
+      text-decoration: none;
+    }
+    
+    a:hover {
+      background-color: var(--primary);
+      color: var(--background);
+    }
+    
+    hr {
+      color: var(--secondary-background);
+    }
+    
+    button, input[type=submit] {
+      background-color: var(--primary);
+      font-family: var(--heading-font);
+      font-weight: 700;
+      padding: 8px;
+      padding-left: 16px;
+      padding-right: 16px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    
+    button:hover, input[type=submit]:hover {
+      background-color: var(--accent);
+    }
+    
+    input:not(input[type=submit]), textarea {
+      padding: 8px;
+      background-color: transparent;
+      border: 2px solid var(--accent);
+      border-radius: var(--border-radius);
+      position: relative;
+      color: var(--text);
+      font-family: var(--body-text);
+      width: 100%;
+    }
+    
+    label: {
+      display: block
+    }
+    
+    textarea {
+      vertical-align: top;
+    }
+    
+    table {
+      border-collapse: collapse;
+      margin: 16px
+    }
+    
+    th, td {
+      border: 1px solid var(--primary);
+      padding: 8px;
+    }
+    
+    th {
+      background-color: var(--primary);
+      color: var(--background);
+    }
+    
+    th a {
+      color: black !important;
+      text-decoration: underline !important;
+    }
+    
+    tr:nth-child(even){
+      background-color: var(--secondary-background);
+    }
+  </style>
 
   <body onload="init()">
     <script src="./main.js"></script>
