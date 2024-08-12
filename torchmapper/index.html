@@ -111,7 +111,7 @@
       width: 100%;
     }
     
-    label: {
+    label {
       display: block
     }
     
@@ -152,6 +152,7 @@
     </audio>
 
     <label for="audioUpload">Select an audio file</label>
+    <small>Audio files with <i>variable bitrate encoding</i> will not scrub correctly!</small>
     <br>
     <input onchange="updateAudioSource()" id="audioUpload" type="file" accept="audio/*" />
 
@@ -184,6 +185,7 @@
     <button onclick="importJson()">Import</button>
     <button onclick="fixGaps()">Fix Gaps</button>
     <hr>
+    <input id="pulser"></input>
     <canvas style="width: 100%; aspect-ratio: 4/1; border: 1px solid var(--primary);" id="canvas">
 
     </canvas>

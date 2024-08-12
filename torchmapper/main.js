@@ -57,6 +57,23 @@ function fixDpi() {
   canvas.height = `${rect.width}`;
 }
 
+// https://github.com/gre/smoothstep/blob/master/index.js
+function smoothstep (min, max, value) {
+  var x = Math.max(0, Math.min(1, (value-min)/(max-min)));
+  return x;
+};
+
+function getBeatColour(b){
+  switch(b.height){
+    case "1":
+      return "red";
+    case "2":
+      return "yellow";
+    case "3":
+      return "blue";
+  }
+}
+
 let bps = 64; // 64 pixels per second (1 block per pixel)
 function renderCanvas(){
   if(!ctx){
@@ -88,7 +105,18 @@ function renderCanvas(){
   ctx.fillStyle = "#ff33e0";
   ctx.globalAlpha = 1.0;
 
+  let lastBeatHit; // the last beat we have already passed
   beats.forEach(b => {
+    const beatPlayed = b.time * bps - offset < 0;
+    let beatNewer = true;
+    if(typeof lastBeatHit != "undefined"){
+      beatNewer = lastBeatHit.time < b.time;
+    }
+
+    if(beatPlayed && beatNewer){
+      lastBeatHit = b;
+    }
+
     let startHeight = 0;
     let endHeight = height;
     switch(b.side){
@@ -103,21 +131,20 @@ function renderCanvas(){
         break;
     }
 
-    switch(b.height){
-      case "1":
-        ctx.fillStyle = "red";
-        break;
-      case "2":
-        ctx.fillStyle = "yellow";
-        break;
-      case "3":
-        ctx.fillStyle = "blue";
-        break;
-    }
+    ctx.fillStyle = getBeatColour(b);
 
     ctx.fillRect(b.time * bps - offset + width / 4, startHeight, 1, endHeight - startHeight);
   });
 
+  if(typeof(lastBeatHit) != "undefined"){
+    document.getElementById("pulser").style.backgroundColor = getBeatColour(lastBeatHit);
+    document.getElementById("pulser").style.borderColor = getBeatColour(lastBeatHit);
+    document.getElementById("pulser").style.opacity = smoothstep(-0.5 * bps, 0, lastBeatHit.time * bps - offset);
+
+  } else {
+    document.getElementById("pulser").style.backgroundColor = "";
+  }
+  
   ctx.globalAlpha = 1.0;
 
   // draw horizontal line across centre
@@ -128,12 +155,12 @@ function renderCanvas(){
   // draw vertical line down centre
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(width / 4, 0, 1, height);
-
+  
 }
 
 function renderLoop(){
-  requestAnimationFrame(renderLoop);
   renderCanvas();
+  requestAnimationFrame(renderLoop);
 }
 
 renderLoop();
@@ -181,7 +208,6 @@ document.addEventListener("keydown", (e) => {
       height = "1";
       break;
     default:
-      console.log(e.code)
       return;
   }
 
